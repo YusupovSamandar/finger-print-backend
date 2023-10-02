@@ -1,8 +1,8 @@
 const mongoose = require('mongoose');
 
 const attendanceSchema = new mongoose.Schema({
-    staffId: {
-        type: mongoose.Schema.Types.ObjectId,
+    fingerId: {
+        type: Number,
         ref: 'Staff',
         required: true
     },
@@ -17,7 +17,9 @@ const attendanceSchema = new mongoose.Schema({
     departureTime: {
         type: Date,
     }
-
 });
+
+attendanceSchema.index({ date: -1 });
+
 
 module.exports = mongoose.model('Attendance', attendanceSchema);
