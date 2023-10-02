@@ -5,9 +5,32 @@ const getAllAttendance = async (req, res) => {
     const allAttendance = await Attendance.find({});
     res.send(allAttendance);
 }
+const getAllAttendanceWithDate = async (req, res) => {
+    const requestedDate = req.query.date
+    const startOfTheDayDate = moment.tz(new Date(requestedDate), 'Asia/Tashkent').startOf('day').toDate(); // Get current date in Uzbekistan Timezone
+    const endOfTheDayDate = moment.tz(new Date(requestedDate), 'Asia/Tashkent').endOf('day').toDate();
+    const allAttendance = await Attendance.find({
+        date: {
+            $gte: startOfTheDayDate, // Start of the day in Uzbekistan Timezone
+            $lte: endOfTheDayDate // End of the day in Uzbekistan Timezone
+        }
+    });
+    res.send(allAttendance);
+}
+
+const oneStaffReport = async (req, res) => {
+    const fingerId = req.params.id;
+    try {
+        const allFoundAttendance = await Attendance.find({ fingerId }).sort({ date: -1 });
+        res.send(allFoundAttendance);
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+}
 
 const markStaffAttandance = async (req, res) => {
-    const { staffId } = req.body;
+    const { fingerId } = req.body;
     const uzbekistanTime = moment.tz(new Date(), 'Asia/Tashkent'); // Get current date in Uzbekistan Timezone
 
     const endOfTheDayDate = moment.tz(new Date(), 'Asia/Tashkent').endOf('day').toDate(); // Get current date in Uzbekistan Timezone
@@ -16,7 +39,7 @@ const markStaffAttandance = async (req, res) => {
     try {
         // Find the attendance record for the staff member and today's date
         let attendanceRecord = await Attendance.findOne({
-            staffId: staffId,
+            fingerId: fingerId,
             date: {
                 $gte: startOfTheDayDate, // Start of the day in Uzbekistan Timezone
                 $lte: endOfTheDayDate // End of the day in Uzbekistan Timezone
@@ -26,7 +49,7 @@ const markStaffAttandance = async (req, res) => {
         if (!attendanceRecord) {
             // If no attendance record exists, create a new one
             attendanceRecord = new Attendance({
-                staffId: staffId,
+                fingerId: fingerId,
                 date: uzbekistanTime.toDate(), // Save date as a JavaScript Date object
                 arrivalTime: uzbekistanTime.toDate()
             });
@@ -46,5 +69,7 @@ const markStaffAttandance = async (req, res) => {
 
 module.exports = {
     getAllAttendance,
-    markStaffAttandance
+    markStaffAttandance,
+    getAllAttendanceWithDate,
+    oneStaffReport
 }

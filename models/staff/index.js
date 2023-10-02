@@ -7,7 +7,7 @@ const staffSchema = new mongoose.Schema({
         default: 'none'
     },
     fingerId: {
-        type: String,
+        type: Number,
         required: true,
         unique: true
     }
