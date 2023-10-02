@@ -5,8 +5,11 @@ const dotenv = require('dotenv');
 const mongoose = require('mongoose');
 
 // api routes
+mongoose.pluralize(null);
+
 
 const staffRoutes = require('./routes/staffRoutes');
+const attendanceRoutes = require('./routes/attendanceRoutes');
 
 
 dotenv.config();
@@ -38,8 +41,6 @@ async function main() {
     });
 }
 
-mongoose.pluralize(null);
-
 const db = mongoose.connection;
 
 db.on('error', (err) => {
@@ -51,6 +52,7 @@ db.once('open', () => {
 });
 
 app.use('/api/staff', staffRoutes);
+app.use('/api/attendance', attendanceRoutes);
 
 const port = process.env.PORT || 4000;
 
